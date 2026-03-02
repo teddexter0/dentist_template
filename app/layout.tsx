@@ -1,22 +1,42 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { clinicConfig } from "@/config/clinic";
+import { detectSeason } from "@/lib/season";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
+import SeasonalBanner from "@/components/SeasonalBanner";
 
-const inter = Inter({ subsets: ["latin"] });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Dental Clinic - Quality Dental Care in Eldoret & Kitale",
-  description: "Professional dental services with two convenient locations in Eldoret and Kitale. Expert care for your whole family.",
+  title: `${clinicConfig.name} — Professional Dental Care`,
+  description: `${clinicConfig.tagline} | ${clinicConfig.address}`,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const season =
+    clinicConfig.season !== "default" ? clinicConfig.season : detectSeason();
+
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" data-season={season}>
+      <body className={`${playfair.variable} ${dmSans.variable} font-sans`}>
+        <SeasonalBanner />
+        {children}
+        <WhatsAppFloat phone={clinicConfig.whatsapp} />
+      </body>
     </html>
   );
 }

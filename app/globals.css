@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   DEFAULT THEME — Year-round clinic colours
+   ============================================================ */
+:root,
+[data-season="default"] {
+  --color-primary: #1B4F72;
+  --color-accent: #A8D5BA;
+  --color-bg: #FAFAF8;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #FAFAF8 0%, #E8F4F0 100%);
+  --banner-bg: #1B4F72;
+  --banner-text: #ffffff;
+}
+
+/* ============================================================
+   VALENTINE THEME — Feb 1–14
+   ============================================================ */
+[data-season="valentine"] {
+  --color-primary: #8B1A4A;
+  --color-accent: #F4A7BB;
+  --color-bg: #FFF0F3;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #FFF0F3 0%, #FFD6E0 100%);
+  --banner-bg: #8B1A4A;
+  --banner-text: #ffffff;
+}
+
+/* ============================================================
+   CHRISTMAS THEME — Dec 1–26
+   ============================================================ */
+[data-season="christmas"] {
+  --color-primary: #1A5C2A;
+  --color-accent: #D4351C;
+  --color-bg: #F0FFF4;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #F0FFF4 0%, #FFF5F5 100%);
+  --banner-bg: #1A5C2A;
+  --banner-text: #ffffff;
+}
+
+/* ============================================================
+   EASTER THEME — Mar 20 – Apr 15
+   ============================================================ */
+[data-season="easter"] {
+  --color-primary: #5B3E8F;
+  --color-accent: #F9C74F;
+  --color-bg: #FDF6FF;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #FDF6FF 0%, #FFFBE6 100%);
+  --banner-bg: #5B3E8F;
+  --banner-text: #ffffff;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -21,17 +77,78 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
   }
-}
 
-@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-bg);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
+/* ============================================================
+   SEASONAL BANNER
+   ============================================================ */
+.seasonal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background: var(--banner-bg);
+  color: var(--banner-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  position: relative;
+  z-index: 50;
+}
+
+/* ============================================================
+   WHATSAPP FLOAT BUTTON
+   ============================================================ */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #25D366;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: whatsapp-pulse 3s ease-in-out infinite;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.6);
+}
+
+@keyframes whatsapp-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
+  50% { box-shadow: 0 4px 28px rgba(37, 211, 102, 0.7); }
+}
+
+/* ============================================================
+   UTILITIES & ANIMATIONS
+   ============================================================ */
 @layer utilities {
   @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
@@ -41,38 +158,59 @@
   }
 
   @keyframes fade-in-up {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes snowfall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
   }
 
   .animate-blob {
     animation: blob 7s infinite;
   }
 
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
 
   .animate-fade-in-up {
     animation: fade-in-up 0.6s ease-out forwards;
     opacity: 0;
   }
 
-  .animation-delay-200 {
-    animation-delay: 0.2s;
-  }
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-400 { animation-delay: 0.4s; }
+}
 
-  .animation-delay-400 {
-    animation-delay: 0.4s;
-  }
+/* ============================================================
+   CHRISTMAS: Subtle snowfall on hero (CSS only)
+   ============================================================ */
+[data-season="christmas"] .hero-snow::before,
+[data-season="christmas"] .hero-snow::after {
+  content: "❄";
+  position: absolute;
+  top: -10px;
+  font-size: 1.2rem;
+  opacity: 0.6;
+  animation: snowfall 6s linear infinite;
+}
+
+[data-season="christmas"] .hero-snow::after {
+  left: 60%;
+  animation-delay: 3s;
+  animation-duration: 8s;
+}
+
+/* ============================================================
+   VALENTINE: Floating hearts on hero (CSS only)
+   ============================================================ */
+[data-season="valentine"] .hero-hearts::before {
+  content: "💕";
+  position: absolute;
+  top: 20%;
+  left: 5%;
+  font-size: 1.5rem;
+  animation: blob 6s ease-in-out infinite;
+  pointer-events: none;
 }
