@@ -1,9 +1,118 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Phone, Mail, MapPin, Clock, Menu, X } from 'lucide-react';
 import { clinicConfig } from '@/config/clinic';
+import HeroVideo from '@/components/HeroVideo';
+import ParticleField from '@/components/ParticleField';
+
+// GSAP scroll-triggered counter
+function AnimatedCounter({ to, suffix = '', prefix = '' }: { to: number; suffix?: string; prefix?: string }) {
+  const [val, setVal] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const triggered = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || triggered.current) return;
+      triggered.current = true;
+      obs.disconnect();
+
+      const initGSAP = async () => {
+        const { gsap } = await import('gsap');
+        const obj = { n: 0 };
+        gsap.to(obj, {
+          n: to,
+          duration: 2,
+          ease: 'power2.out',
+          onUpdate() {
+            setVal(Math.round(obj.n));
+          },
+        });
+      };
+      initGSAP();
+    }, { threshold: 0.4 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [to]);
+
+  return <span ref={ref}>{prefix}{val.toLocaleString()}{suffix}</span>;
+}
+
+// 3D tilt card on mouse move
+function TiltCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(800px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-4px)`;
+  };
+
+  const onMouseLeave = () => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0)';
+    }
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      className={`tilt-card ${className}`}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{ transition: 'transform 0.15s ease', willChange: 'transform' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// GSAP reveal on scroll
+function RevealOnScroll({ children, delay = 0, className = '' }: {
+  children: React.ReactNode; delay?: number; className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      return;
+    }
+
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+
+    const obs = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      obs.disconnect();
+      const initGSAP = async () => {
+        const { gsap } = await import('gsap');
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          delay: delay / 1000,
+          ease: 'power3.out',
+        });
+      };
+      initGSAP();
+    }, { threshold: 0.15 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [delay]);
+
+  return <div ref={ref} className={className}>{children}</div>;
+}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,6 +124,22 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Seasonal particle color
+  const particleColors: Record<string, string> = {
+    valentine: '#FF6B9D',
+    christmas: '#FFD700',
+    easter: '#C471ED',
+    summer: '#FFB347',
+    halloween: '#FF6B00',
+    thanksgiving: '#D2691E',
+    newyear: '#FFD700',
+    default: '#A8D5BA',
+  };
+  const season = typeof document !== 'undefined'
+    ? (document.documentElement.getAttribute('data-season') || 'default')
+    : 'default';
+  const pColor = particleColors[season] || '#A8D5BA';
 
   return (
     <div className="min-h-screen">
@@ -32,7 +157,7 @@ export default function Home() {
             <a href={`tel:${clinicConfig.phone}`} className="text-gray-600 hover:text-gray-900 transition-colors">{clinicConfig.phone}</a>
             <Link
               href="/book"
-              className="px-5 py-2 rounded-full text-white text-sm font-medium transition-opacity hover:opacity-90"
+              className="magnetic-btn px-5 py-2 rounded-full text-white text-sm font-medium transition-opacity hover:opacity-90 spring-hover"
               style={{ background: 'var(--color-primary)' }}
             >
               Book Appointment
@@ -58,83 +183,84 @@ export default function Home() {
         )}
       </header>
 
-      {/* HERO */}
-      <section className="py-24 px-4 text-center relative overflow-hidden animate-fade-in-up" style={{ background: 'var(--hero-bg)' }}>
-        <div className="max-w-3xl mx-auto">
-          <p className="text-sm font-medium uppercase tracking-widest mb-4 opacity-70" style={{ color: 'var(--color-primary)' }}>
-            Professional Dental Care
-          </p>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
-            {clinicConfig.name}
-          </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-xl mx-auto">{clinicConfig.tagline}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/book"
-              className="px-10 py-4 rounded-full text-white font-semibold text-lg transition-all hover:scale-105 shadow-md"
-              style={{ background: 'var(--color-primary)' }}
-            >
-              Book Appointment
-            </Link>
-            <a
-              href={`https://wa.me/${clinicConfig.whatsapp}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-10 py-4 rounded-full font-semibold text-lg border-2 transition-all hover:scale-105"
-              style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
-            >
-              WhatsApp Us
-            </a>
-          </div>
+      {/* HERO — Video with GSAP char animation */}
+      <HeroVideo
+        videoSrc={clinicConfig.heroVideo}
+        headline={clinicConfig.name}
+        subHeadline={clinicConfig.tagline}
+        overlayOpacity={0.5}
+        particleColor={pColor}
+        fallbackGradient="var(--hero-bg)"
+      >
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            href="/book"
+            className="px-10 py-4 rounded-full text-white font-semibold text-lg spring-hover shadow-md"
+            style={{ background: 'var(--color-primary)' }}
+          >
+            Book Appointment
+          </Link>
+          <a
+            href={`https://wa.me/${clinicConfig.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-10 py-4 rounded-full font-semibold text-lg border-2 border-white text-white spring-hover backdrop-blur-sm bg-white/10"
+          >
+            WhatsApp Us
+          </a>
         </div>
-      </section>
+      </HeroVideo>
 
-      {/* TRUST BAR */}
-      <section className="py-8 bg-white border-y border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center text-sm">
+      {/* TRUST BAR — animated counters */}
+      <section className="py-10 bg-white border-y border-gray-100 relative overflow-hidden">
+        <ParticleField color={pColor} count={15} />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center">
             {[
-              { icon: '🏆', text: '10+ Years Experience' },
-              { icon: '😊', text: '2,000+ Happy Patients' },
-              { icon: '⚡', text: 'Same-Day Appointments' },
-              { icon: '👨‍⚕️', text: 'Qualified Specialists' },
+              { icon: '🏆', label: 'Years Experience', value: 10, suffix: '+' },
+              { icon: '😊', label: 'Happy Patients', value: 2000, suffix: '+' },
+              { icon: '⚡', label: 'Same-Day Rate', value: 95, suffix: '%' },
+              { icon: '👨‍⚕️', label: 'Qualified Specialists', value: 4, suffix: '' },
             ].map((item) => (
-              <div key={item.text} className="flex items-center gap-2 text-gray-600">
-                <span>{item.icon}</span>
-                <span className="font-medium">{item.text}</span>
-              </div>
+              <RevealOnScroll key={item.label} delay={100}>
+                <div className="flex flex-col items-center gap-1 text-gray-700 spring-hover cursor-default">
+                  <span className="text-3xl">{item.icon}</span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>
+                    <AnimatedCounter to={item.value} suffix={item.suffix} />
+                  </span>
+                  <span className="text-sm text-gray-500">{item.label}</span>
+                </div>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SERVICES */}
+      {/* SERVICES — 3D tilt cards */}
       <section id="services" className="py-20 px-4" style={{ background: 'var(--color-bg)' }}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <RevealOnScroll className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
               Our Services
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">Comprehensive dental care for the whole family, all under one roof.</p>
-          </div>
+          </RevealOnScroll>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {clinicConfig.services.map((service, i) => (
-              <div
-                key={service.name}
-                className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 border border-gray-50 animate-fade-in-up"
-                style={{ animationDelay: `${i * 80}ms` }}
-              >
-                <div className="text-3xl mb-4">{service.icon}</div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{service.name}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-3">{service.description}</p>
-                <p className="text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>{service.price}</p>
-              </div>
+              <RevealOnScroll key={service.name} delay={i * 80}>
+                <TiltCard className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-50 h-full cursor-default">
+                  <div className="text-3xl mb-4">{service.icon}</div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{service.name}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-3">{service.description}</p>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>{service.price}</p>
+                </TiltCard>
+              </RevealOnScroll>
             ))}
           </div>
           <div className="text-center mt-10">
             <Link
               href="/services"
-              className="inline-block px-8 py-3 rounded-full font-semibold border-2 transition-colors hover:text-white hover:bg-current"
+              className="magnetic-btn inline-block px-8 py-3 rounded-full font-semibold border-2 spring-hover"
               style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
             >
               View All Services
@@ -146,22 +272,29 @@ export default function Home() {
       {/* HOW IT WORKS */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
-            How It Works
-          </h2>
+          <RevealOnScroll>
+            <h2 className="text-3xl md:text-4xl font-bold mb-12" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
+              How It Works
+            </h2>
+          </RevealOnScroll>
           <div className="grid sm:grid-cols-3 gap-8">
             {[
               { step: '1', title: 'Book Online', desc: 'Choose your service and preferred date in seconds.' },
               { step: '2', title: 'Visit Us', desc: 'Our team welcomes you at our comfortable clinic.' },
               { step: '3', title: 'Leave Smiling', desc: 'Walk out with a healthier, more confident smile.' },
-            ].map((item) => (
-              <div key={item.step} className="flex flex-col items-center">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4" style={{ background: 'var(--color-primary)' }}>
-                  {item.step}
+            ].map((item, i) => (
+              <RevealOnScroll key={item.step} delay={i * 120}>
+                <div className="flex flex-col items-center spring-hover cursor-default">
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4"
+                    style={{ background: 'var(--color-primary)' }}
+                  >
+                    {item.step}
+                  </div>
+                  <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{item.title}</h3>
+                  <p className="text-gray-500 text-sm">{item.desc}</p>
                 </div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{item.title}</h3>
-                <p className="text-gray-500 text-sm">{item.desc}</p>
-              </div>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
@@ -170,9 +303,11 @@ export default function Home() {
       {/* TESTIMONIALS */}
       <section className="py-20 px-4" style={{ background: 'var(--color-bg)' }}>
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-12" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
-            What Our Patients Say
-          </h2>
+          <RevealOnScroll>
+            <h2 className="text-3xl md:text-4xl font-bold mb-12" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
+              What Our Patients Say
+            </h2>
+          </RevealOnScroll>
           <div className="bg-white rounded-2xl p-8 shadow-sm relative min-h-48">
             {clinicConfig.testimonials.map((t, i) => (
               <div
@@ -193,8 +328,10 @@ export default function Home() {
                 <button
                   key={i}
                   onClick={() => setCurrentTestimonial(i)}
-                  className={`h-2 rounded-full transition-all ${i === currentTestimonial ? 'w-8' : 'w-2 bg-gray-300'}`}
-                  style={i === currentTestimonial ? { background: 'var(--color-primary)', width: '2rem' } : {}}
+                  className="h-2 rounded-full transition-all"
+                  style={i === currentTestimonial
+                    ? { background: 'var(--color-primary)', width: '2rem' }
+                    : { background: '#D1D5DB', width: '0.5rem' }}
                   aria-label={`Testimonial ${i + 1}`}
                 />
               ))}
@@ -203,21 +340,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Seasonal marquee strip */}
+      <div
+        className="py-3 overflow-hidden"
+        style={{ background: 'var(--color-primary)' }}
+      >
+        <div className="marquee-track">
+          {[...Array(2)].map((_, rep) => (
+            <span key={rep} className="flex gap-12 px-6">
+              {['😁 Healthy Smiles', '🦷 Expert Care', '📅 Easy Booking', '💎 Premium Results', '🏆 10+ Years', '❤️ Family Friendly'].map(item => (
+                <span key={item} className="text-white/90 text-sm font-medium tracking-wide whitespace-nowrap">{item}</span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* CTA */}
       <section className="py-20 px-4 text-white text-center" style={{ background: 'var(--color-primary)' }}>
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
-            Ready for Your Best Smile?
-          </h2>
-          <p className="opacity-90 text-lg mb-8">Book today — same-day appointments often available.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/book" className="px-10 py-4 rounded-full font-semibold text-lg text-gray-900 transition-all hover:scale-105" style={{ background: 'var(--color-accent)' }}>
-              Book Appointment
-            </Link>
-            <a href={`tel:${clinicConfig.phone}`} className="px-10 py-4 rounded-full font-semibold text-lg border-2 border-white transition-all hover:bg-white hover:text-gray-900">
-              {clinicConfig.phone}
-            </a>
-          </div>
+          <RevealOnScroll>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>
+              Ready for Your Best Smile?
+            </h2>
+            <p className="opacity-90 text-lg mb-8">Book today — same-day appointments often available.</p>
+          </RevealOnScroll>
+          <RevealOnScroll delay={200}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/book" className="magnetic-btn px-10 py-4 rounded-full font-semibold text-lg text-gray-900 spring-hover" style={{ background: 'var(--color-accent)' }}>
+                Book Appointment
+              </Link>
+              <a href={`tel:${clinicConfig.phone}`} className="magnetic-btn px-10 py-4 rounded-full font-semibold text-lg border-2 border-white spring-hover hover:bg-white hover:text-gray-900 transition-colors">
+                {clinicConfig.phone}
+              </a>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
@@ -232,9 +389,9 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-3">Quick Links</h4>
               <div className="space-y-2 text-sm text-gray-400">
-                <Link href="/services" className="block hover:text-white">Services</Link>
-                <Link href="/about" className="block hover:text-white">About Us</Link>
-                <Link href="/book" className="block hover:text-white">Book Appointment</Link>
+                <Link href="/services" className="block hover:text-white transition-colors">Services</Link>
+                <Link href="/about" className="block hover:text-white transition-colors">About Us</Link>
+                <Link href="/book" className="block hover:text-white transition-colors">Book Appointment</Link>
               </div>
             </div>
             <div>

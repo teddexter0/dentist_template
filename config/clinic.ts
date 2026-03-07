@@ -1,8 +1,10 @@
-export type Season = "default" | "valentine" | "christmas" | "easter";
+export type Season = "default" | "valentine" | "christmas" | "easter" | "newyear" | "summer" | "halloween" | "thanksgiving";
 
 export const clinicConfig = {
   name: "Bright Smiles Dental",
   tagline: "Your Confident Smile Starts Here",
+  // Hero video URL — replace with your own hosted video. Leave empty for gradient fallback.
+  heroVideo: "",
   phone: "+254 700 000 000",
   email: "info@brightsmiles.co.ke",
   whatsapp: "+254700000000",
@@ -76,7 +78,7 @@ export const clinicConfig = {
     },
   ],
   // Manual season override (trumps auto-detection)
-  // Options: "default" | "valentine" | "christmas" | "easter"
+  // Options: "default" | "valentine" | "christmas" | "easter" | "newyear" | "summer" | "halloween" | "thanksgiving"
   season: "default" as Season,
   brevo: {
     // Add your Brevo template IDs after setting up in Brevo dashboard
