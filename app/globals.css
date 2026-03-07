@@ -30,7 +30,7 @@
 }
 
 /* ============================================================
-   CHRISTMAS THEME — Dec 1–26
+   CHRISTMAS THEME — Dec 1–25
    ============================================================ */
 [data-season="christmas"] {
   --color-primary: #1A5C2A;
@@ -53,6 +53,58 @@
   --hero-bg: linear-gradient(135deg, #FDF6FF 0%, #FFFBE6 100%);
   --banner-bg: #5B3E8F;
   --banner-text: #ffffff;
+}
+
+/* ============================================================
+   NEW YEAR THEME — Dec 26–Jan 7
+   ============================================================ */
+[data-season="newyear"] {
+  --color-primary: #1a1a40;
+  --color-accent: #FFD700;
+  --color-bg: #F8F8FF;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #1a1a40 0%, #2a2a60 100%);
+  --banner-bg: #1a1a40;
+  --banner-text: #FFD700;
+}
+
+/* ============================================================
+   SUMMER THEME — Jun–Aug
+   ============================================================ */
+[data-season="summer"] {
+  --color-primary: #006994;
+  --color-accent: #FFB347;
+  --color-bg: #F0FBFF;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #006994 0%, #0099CC 100%);
+  --banner-bg: #FFB347;
+  --banner-text: #1A1A1A;
+}
+
+/* ============================================================
+   HALLOWEEN THEME — Oct 15–31
+   ============================================================ */
+[data-season="halloween"] {
+  --color-primary: #4A0E8F;
+  --color-accent: #FF6B00;
+  --color-bg: #FFF5F0;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 100%);
+  --banner-bg: #FF6B00;
+  --banner-text: #ffffff;
+}
+
+/* ============================================================
+   THANKSGIVING THEME — November
+   ============================================================ */
+[data-season="thanksgiving"] {
+  --color-primary: #7B3F00;
+  --color-accent: #D2691E;
+  --color-bg: #FFF8F0;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #FFF8F0 0%, #FFE4C4 100%);
+  --banner-bg: #7B3F00;
+  --banner-text: #FFF8F0;
 }
 
 /* ============================================================
@@ -213,4 +265,93 @@
   font-size: 1.5rem;
   animation: blob 6s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* ============================================================
+   SPRING PHYSICS / GSAP SUPPORT UTILITIES
+   ============================================================ */
+
+/* Spring hover — works via CSS cubic-bezier (overshoot = spring feel) */
+.spring-hover {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+}
+.spring-hover:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* 3D tilt card — works with JS mouse tracking */
+.tilt-card {
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  transition: transform 0.1s ease;
+  will-change: transform;
+}
+
+/* Magnetic button base */
+.magnetic-btn {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* GSAP scroll animation baseline */
+[data-gsap-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Animated scroll dot */
+@keyframes scroll-dot {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.3; transform: translateY(4px); }
+}
+.animate-scroll-dot {
+  animation: scroll-dot 1.5s ease-in-out infinite;
+}
+
+/* Counter number pulse on increment */
+@keyframes count-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.count-pulse {
+  animation: count-pulse 0.15s ease;
+}
+
+/* Seasonal marquee strip */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 20s linear infinite;
+  display: flex;
+  white-space: nowrap;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Stagger entrance for grid items (used with GSAP) */
+.stagger-grid > * {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Reduced motion — disable all non-essential animations */
+@media (prefers-reduced-motion: reduce) {
+  .spring-hover,
+  .tilt-card,
+  .magnetic-btn,
+  .marquee-track,
+  [data-gsap-reveal],
+  .stagger-grid > * {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
