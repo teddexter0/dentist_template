@@ -2,6 +2,7 @@ export type Season =
   | "default"
   | "newyear"
   | "valentine"
+  | "ramadan"
   | "easter"
   | "summer"
   | "halloween"
@@ -13,7 +14,7 @@ export interface SeasonTheme {
   label: string;
   emoji: string;
   particleColor: string;
-  particleShape: "star" | "heart" | "snowflake" | "circle" | "leaf";
+  particleShape: "star" | "heart" | "snowflake" | "circle" | "leaf" | "crescent";
   bannerMessage: string;
 }
 
@@ -33,6 +34,14 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
     particleColor: "#FF6B9D",
     particleShape: "heart",
     bannerMessage: "💕 Valentine's Special — Gift your loved one a smile makeover!",
+  },
+  ramadan: {
+    season: "ramadan",
+    label: "Ramadan Kareem",
+    emoji: "🌙",
+    particleColor: "#C9A84C",
+    particleShape: "crescent",
+    bannerMessage: "🌙 Ramadan Kareem — Special check-up packages this blessed month.",
   },
   easter: {
     season: "easter",
@@ -84,13 +93,41 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
   },
 };
 
-export function detectSeason(): Season {
+/**
+ * Ramadan shifts ~11 days earlier each year.
+ * Approximate Gregorian windows (update annually):
+ * 2026: Feb 18 – Mar 19
+ * 2027: Feb 07 – Mar 08
+ * 2028: Jan 27 – Feb 25
+ * For the prototype we detect using configurable window from clinicConfig.
+ * Fallback: roughly late-Feb to mid-Mar.
+ */
+export function isRamadan(
+  now: Date = new Date(),
+  windowOverride?: { startMonth: number; startDay: number; endMonth: number; endDay: number }
+): boolean {
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  const win = windowOverride ?? { startMonth: 2, startDay: 18, endMonth: 3, endDay: 19 };
+  const afterStart =
+    m > win.startMonth || (m === win.startMonth && d >= win.startDay);
+  const beforeEnd =
+    m < win.endMonth || (m === win.endMonth && d <= win.endDay);
+  // handle same-month window
+  if (win.startMonth === win.endMonth) return afterStart && beforeEnd;
+  return afterStart && beforeEnd;
+}
+
+export function detectSeason(
+  ramadanWindow?: { startMonth: number; startDay: number; endMonth: number; endDay: number }
+): Season {
   const now = new Date();
   const m = now.getMonth() + 1;
   const d = now.getDate();
 
   if ((m === 12 && d >= 26) || (m === 1 && d <= 7)) return "newyear";
   if (m === 2 && d <= 14) return "valentine";
+  if (isRamadan(now, ramadanWindow)) return "ramadan";
   if ((m === 3 && d >= 20) || (m === 4 && d <= 15)) return "easter";
   if (m >= 6 && m <= 8) return "summer";
   if (m === 10 && d >= 15) return "halloween";
