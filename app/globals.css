@@ -30,6 +30,19 @@
 }
 
 /* ============================================================
+   RAMADAN THEME — auto-detected window (configurable in clinic.ts)
+   ============================================================ */
+[data-season="ramadan"] {
+  --color-primary: #1B6B3A;
+  --color-accent: #C9A84C;
+  --color-bg: #F5F5E8;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #1B6B3A 0%, #2D8A50 100%);
+  --banner-bg: #1B6B3A;
+  --banner-text: #C9A84C;
+}
+
+/* ============================================================
    CHRISTMAS THEME — Dec 1–25
    ============================================================ */
 [data-season="christmas"] {

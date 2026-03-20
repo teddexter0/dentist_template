@@ -1,63 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
+import { addBooking } from "@/lib/store";
 import { appendToSheet } from "@/lib/sheets";
-import { sendEmail } from "@/lib/email";
-import { clinicConfig } from "@/config/clinic";
+import { sendAppointmentConfirmation, sendClinicNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, phone, email, service, date, message } = body;
+    const { name, phone, email, service, date, time, branch, message } = body;
 
-    if (!name || !phone || !service || !date) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (!name || !phone || !service || !date || !branch) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Save to Google Sheet
-    await appendToSheet({
-      name,
-      phone,
-      email: email || "",
-      service,
-      preferredDate: date,
-      message: message || "",
-      timestamp: new Date().toISOString(),
-      status: "Pending",
+    const booking = addBooking({
+      name, phone, email: email || "", service, branch,
+      preferredDate: date, preferredTime: time || "",
+      message: message || "", timestamp: new Date().toISOString(), status: "Pending",
     });
 
-    // Send confirmation email to patient
+    // Sync to Google Sheets (non-blocking, optional)
+    appendToSheet({
+      name, phone, email: email || "", service, branch,
+      preferredDate: date, preferredTime: time || "",
+      message: message || "", timestamp: booking.timestamp, status: "Pending",
+    }).catch((e: unknown) => console.error("Sheets sync error:", e));
+
+    // Confirmation email to patient
     if (email) {
-      await sendEmail(email, clinicConfig.brevo.appointmentConfirmationId, {
-        PATIENT_NAME: name,
-        SERVICE: service,
-        DATE: date,
-        CLINIC_NAME: clinicConfig.name,
-        CLINIC_PHONE: clinicConfig.phone,
-      });
+      sendAppointmentConfirmation({
+        toEmail: email, patientName: name, service, date, time: time || "", branch,
+      }).catch((e: unknown) => console.error("Patient email error:", e));
     }
 
-    // Send notification to clinic owner
-    await sendEmail(
-      clinicConfig.email,
-      clinicConfig.brevo.clinicNotificationId,
-      {
-        PATIENT_NAME: name,
-        PATIENT_PHONE: phone,
-        PATIENT_EMAIL: email || "N/A",
-        SERVICE: service,
-        DATE: date,
-        MESSAGE: message || "N/A",
-      }
-    );
+    // Notification to clinic owner
+    sendClinicNotification({
+      patientName: name, patientPhone: phone, patientEmail: email || "",
+      service, date, time: time || "", branch, message: message || "",
+    }).catch((e: unknown) => console.error("Clinic email error:", e));
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id: booking.id });
   } catch (err) {
     console.error("Booking error:", err);
-    return NextResponse.json(
-      { error: "Failed to submit booking" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to submit booking" }, { status: 500 });
   }
 }

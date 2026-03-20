@@ -340,6 +340,54 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* OUR LOCATIONS */}
+      <section className="py-20 px-4 bg-white" id="locations">
+        <div className="max-w-4xl mx-auto">
+          <RevealOnScroll className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-playfair)' }}>
+              Our Locations
+            </h2>
+            <p className="text-gray-600">Two convenient branches — Eldoret &amp; Kitale</p>
+          </RevealOnScroll>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {clinicConfig.branches.map((branch, i) => (
+              <RevealOnScroll key={branch.name} delay={i * 120}>
+                <TiltCard className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full">
+                  <div className="text-3xl mb-3">📍</div>
+                  <h3 className="text-lg font-bold mb-3" style={{ color: 'var(--color-primary)' }}>{branch.name}</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>{branch.address}</p>
+                    <p>
+                      <a href={`tel:${branch.phone}`} className="hover:underline font-medium" style={{ color: 'var(--color-primary)' }}>
+                        {branch.phone}
+                      </a>
+                    </p>
+                    <div className="pt-2 border-t border-gray-100 text-xs space-y-1">
+                      <p>Mon–Fri: {branch.hours.weekdays}</p>
+                      <p>Sat: {branch.hours.saturday}</p>
+                      <p className="text-red-400">Sun: {branch.hours.sunday}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <a href={branch.mapsLink} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 text-center py-2 rounded-full text-sm font-medium border-2 spring-hover"
+                      style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}>
+                      Get Directions
+                    </a>
+                    <a href={`https://wa.me/${branch.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 text-center py-2 rounded-full text-sm font-medium text-white spring-hover"
+                      style={{ background: '#25D366' }}>
+                      WhatsApp
+                    </a>
+                  </div>
+                </TiltCard>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Seasonal marquee strip */}
       <div
         className="py-3 overflow-hidden"
@@ -395,27 +443,24 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-3">Contact</h4>
-              <div className="space-y-2 text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  <a href={`tel:${clinicConfig.phone}`} className="hover:text-white">{clinicConfig.phone}</a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <a href={`mailto:${clinicConfig.email}`} className="hover:text-white">{clinicConfig.email}</a>
-                </div>
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <span>{clinicConfig.address}</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div>Mon–Fri: {clinicConfig.hours.weekdays}</div>
-                    <div>Sat: {clinicConfig.hours.saturday}</div>
-                    <div>Sun: {clinicConfig.hours.sunday}</div>
+              <h4 className="font-semibold mb-3">Our Branches</h4>
+              <div className="space-y-4 text-sm text-gray-400">
+                {clinicConfig.branches.map((branch) => (
+                  <div key={branch.name}>
+                    <p className="text-white text-xs font-semibold mb-1">{branch.name}</p>
+                    <div className="flex items-start gap-2 mb-1">
+                      <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      <span>{branch.address}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                      <a href={`tel:${branch.phone}`} className="hover:text-white">{branch.phone}</a>
+                    </div>
                   </div>
+                ))}
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-800">
+                  <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                  <a href={`mailto:${clinicConfig.email}`} className="hover:text-white">{clinicConfig.email}</a>
                 </div>
               </div>
             </div>
