@@ -469,8 +469,18 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
-            <p>© {new Date().getFullYear()} {clinicConfig.name}. All rights reserved.</p>
+          <div className="border-t border-gray-800 pt-6 space-y-3">
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
+              <span>© {new Date().getFullYear()} {clinicConfig.name}. All rights reserved.</span>
+              <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
+            </div>
+            <p className="text-center text-xs text-gray-600">
+              Website by{' '}
+              <a href="mailto:teddexter0@gmail.com" className="hover:text-gray-400 transition-colors underline underline-offset-2">
+                teddexter0@gmail.com
+              </a>
+            </p>
           </div>
         </div>
       </footer>
