@@ -17,7 +17,7 @@ export const clinicConfig = {
   heroVideo: "", // replace with hosted video URL; leave empty for gradient
   phone: "+254 700 000 000",
   email: "info@brightsmiles.co.ke",
-  whatsapp: "+254700000000",
+  whatsapp: "+254711963907",
   address: "Ground Floor, ABC Plaza, Uganda Road, Eldoret",
   mapsLink: "https://maps.google.com/?q=Bright+Smiles+Dental+Eldoret",
   googleAnalyticsId: "",
@@ -27,8 +27,8 @@ export const clinicConfig = {
     {
       name: "Eldoret Main Branch",
       address: "Ground Floor, ABC Plaza, Uganda Road, Eldoret",
-      phone: "+254 700 000 000",
-      whatsapp: "+254700000000",
+      phone: "+254 711 963907",
+      whatsapp: "+254711963907",
       mapsLink: "https://maps.google.com/?q=Bright+Smiles+Dental+Eldoret",
       mapsEmbedSrc: "", // paste Google Maps embed src here after client confirms
       hours: { weekdays: "8:00 AM – 6:00 PM", saturday: "9:00 AM – 2:00 PM", sunday: "Closed" },
