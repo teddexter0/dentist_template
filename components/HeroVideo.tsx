@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface HeroVideoProps {
   videoSrc?: string;
+  imageSrc?: string;
   fallbackGradient?: string;
   headline: string;
   subHeadline?: string;
@@ -14,6 +15,7 @@ interface HeroVideoProps {
 
 export default function HeroVideo({
   videoSrc,
+  imageSrc,
   fallbackGradient = 'linear-gradient(135deg, #1B4F72 0%, #2E86C1 100%)',
   headline,
   subHeadline,
@@ -178,6 +180,14 @@ export default function HeroVideo({
       className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
       style={{ background: fallbackGradient }}
     >
+      {/* Static image background */}
+      {imageSrc && !videoSrc && (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${imageSrc})` }}
+        />
+      )}
+
       {/* Video background */}
       {videoSrc && !videoError && (
         <video
@@ -192,11 +202,12 @@ export default function HeroVideo({
         />
       )}
 
-      {/* Overlay */}
-      <div
-        className="absolute inset-0"
-        style={{ background: `rgba(0,0,0,${overlayOpacity})` }}
-      />
+      {/* Cinematic diagonal overlay — dark on text side, fades to clear */}
+      <div className="hero-diagonal-base" />
+      {/* Checkerboard dissolve at the transition boundary */}
+      <div className="hero-checker-dissolve" />
+      {/* Letterbox film bars */}
+      <div className="hero-letterbox absolute inset-0 pointer-events-none z-[1]" />
 
       {/* Particle canvas */}
       <canvas

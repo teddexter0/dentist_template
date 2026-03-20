@@ -49,13 +49,29 @@ export const clinicConfig = {
   colors: { primary: "#1B4F72", accent: "#A8D5BA", bg: "#FAFAF8", text: "#1A1A1A" },
 
   /**
-   * Ramadan window — shifts ~11 days earlier every year. Update annually.
-   * 2026: Feb 18 – Mar 19 | 2027: Feb 07 – Mar 08 | 2028: Jan 27 – Feb 25
+   * Seasonal windows — all shift yearly (Islamic dates ~11 days earlier/year).
+   * Update each January. Current values are 2026 approximations.
+   *
+   * Ramadan  2026: Feb 18 – Mar 19  |  2027: Feb 07 – Mar 08
+   * Eid Fitr 2026: Mar 20 – Mar 22  |  2027: Mar 09 – Mar 11
+   * Eid Adha 2026: May 27 – May 30  |  2027: May 16 – May 19
+   * Diwali   2026: Oct 20 – Oct 22  |  2027: Nov 08 – Nov 10  (Hindu calendar)
    */
-  ramadanWindow: { startMonth: 2, startDay: 18, endMonth: 3, endDay: 19 },
+  seasonWindows: {
+    ramadan:  { startMonth: 2,  startDay: 18, endMonth: 3,  endDay: 19 },
+    eidFitr:  { startMonth: 3,  startDay: 20, endMonth: 3,  endDay: 22 },
+    eidAdha:  { startMonth: 5,  startDay: 27, endMonth: 5,  endDay: 30 },
+    diwali:   { startMonth: 10, startDay: 20, endMonth: 10, endDay: 22 },
+  },
 
   /** Override auto-detection: "default" means auto. */
   season: "default" as Season,
+
+  /**
+   * Google Maps review link — replace with actual place ID after client confirms location.
+   * Get it from: https://business.google.com → your listing → "Get more reviews"
+   */
+  googleReviewUrl: "https://g.page/r/REPLACE_WITH_PLACE_ID/review",
 
   services: [
     {

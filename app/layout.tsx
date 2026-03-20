@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const season =
     clinicConfig.season !== "default"
       ? clinicConfig.season
-      : detectSeason(clinicConfig.ramadanWindow);
+      : detectSeason(clinicConfig.seasonWindows);
 
   return (
     <html lang="en" data-season={season}>
