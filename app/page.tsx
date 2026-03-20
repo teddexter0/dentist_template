@@ -125,16 +125,20 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Seasonal particle color
+  // Seasonal particle color (matches SEASON_THEMES particleColor)
   const particleColors: Record<string, string> = {
-    valentine: '#FF6B9D',
-    christmas: '#FFD700',
-    easter: '#C471ED',
-    summer: '#FFB347',
-    halloween: '#FF6B00',
+    valentine:    '#FF6B9D',
+    ramadan:      '#C9A84C',
+    eid_fitr:     '#FFD700',
+    easter:       '#C471ED',
+    eid_adha:     '#C9A84C',
+    summer:       '#FFB347',
+    diwali:       '#FF8C00',
+    halloween:    '#FF6B00',
     thanksgiving: '#D2691E',
-    newyear: '#FFD700',
-    default: '#A8D5BA',
+    christmas:    '#FFD700',
+    newyear:      '#FFD700',
+    default:      '#A8D5BA',
   };
   const season = typeof document !== 'undefined'
     ? (document.documentElement.getAttribute('data-season') || 'default')
@@ -151,7 +155,7 @@ export default function Home() {
               {clinicConfig.name}
             </span>
           </Link>
-          <nav className="hidden md:flex gap-6 items-center text-sm">
+          <nav className="hidden md:flex gap-6 items-center text-base">
             <Link href="/services" className="text-gray-600 hover:text-gray-900 transition-colors">Services</Link>
             <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
             <a href={`tel:${clinicConfig.phone}`} className="text-gray-600 hover:text-gray-900 transition-colors">{clinicConfig.phone}</a>
@@ -183,7 +187,7 @@ export default function Home() {
         )}
       </header>
 
-      {/* HERO — Video with GSAP char animation */}
+      {/* HERO — cinematic diagonal overlay. Add imageSrc prop (or videoSrc) once client provides media. */}
       <HeroVideo
         videoSrc={clinicConfig.heroVideo}
         headline={clinicConfig.name}
@@ -228,7 +232,7 @@ export default function Home() {
                   <span className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>
                     <AnimatedCounter to={item.value} suffix={item.suffix} />
                   </span>
-                  <span className="text-sm text-gray-500">{item.label}</span>
+                  <span className="text-base text-gray-500">{item.label}</span>
                 </div>
               </RevealOnScroll>
             ))}
@@ -251,8 +255,8 @@ export default function Home() {
                 <TiltCard className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-50 h-full cursor-default">
                   <div className="text-3xl mb-4">{service.icon}</div>
                   <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{service.name}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-3">{service.description}</p>
-                  <p className="text-xs font-semibold" style={{ color: 'var(--color-accent)' }}>{service.price}</p>
+                  <p className="text-gray-500 text-base leading-relaxed mb-3">{service.description}</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>{service.price}</p>
                 </TiltCard>
               </RevealOnScroll>
             ))}
@@ -292,7 +296,7 @@ export default function Home() {
                     {item.step}
                   </div>
                   <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-primary)' }}>{item.title}</h3>
-                  <p className="text-gray-500 text-sm">{item.desc}</p>
+                  <p className="text-gray-500 text-base">{item.desc}</p>
                 </div>
               </RevealOnScroll>
             ))}
@@ -319,8 +323,8 @@ export default function Home() {
                     <span key={j} className="text-yellow-400 text-xl">★</span>
                   ))}
                 </div>
-                <p className="text-gray-700 text-lg italic mb-4">&ldquo;{t.text}&rdquo;</p>
-                <p className="font-semibold" style={{ color: 'var(--color-primary)' }}>{t.name}</p>
+                <p className="text-gray-700 text-xl italic mb-4">&ldquo;{t.text}&rdquo;</p>
+                <p className="font-bold text-base" style={{ color: 'var(--color-primary)' }}>{t.name}</p>
               </div>
             ))}
             <div className="flex justify-center gap-2 mt-8">
@@ -436,7 +440,7 @@ export default function Home() {
             </div>
             <div>
               <h4 className="font-semibold mb-3">Quick Links</h4>
-              <div className="space-y-2 text-sm text-gray-400">
+              <div className="space-y-2 text-base text-gray-400">
                 <Link href="/services" className="block hover:text-white transition-colors">Services</Link>
                 <Link href="/about" className="block hover:text-white transition-colors">About Us</Link>
                 <Link href="/book" className="block hover:text-white transition-colors">Book Appointment</Link>

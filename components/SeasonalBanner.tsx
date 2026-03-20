@@ -7,7 +7,7 @@ import { detectSeason, SEASON_THEMES, type Season } from '@/lib/season';
 export default function SeasonalBanner() {
   const [dismissed, setDismissed] = useState(false);
   const season: Season =
-    clinicConfig.season !== 'default' ? clinicConfig.season : detectSeason();
+    clinicConfig.season !== 'default' ? clinicConfig.season : detectSeason(clinicConfig.seasonWindows);
   const theme = SEASON_THEMES[season];
 
   if (!theme.bannerMessage || dismissed) return null;

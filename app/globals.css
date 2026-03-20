@@ -43,6 +43,45 @@
 }
 
 /* ============================================================
+   EID UL FITR THEME — 3 days after Ramadan (gold celebration)
+   ============================================================ */
+[data-season="eid_fitr"] {
+  --color-primary: #8B6914;
+  --color-accent: #FFD700;
+  --color-bg: #FFFBEA;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #3D2B00 0%, #7A5200 50%, #C9A84C 100%);
+  --banner-bg: #8B6914;
+  --banner-text: #FFD700;
+}
+
+/* ============================================================
+   EID UL ADHA THEME — ~June (rich green + gold)
+   ============================================================ */
+[data-season="eid_adha"] {
+  --color-primary: #145214;
+  --color-accent: #C9A84C;
+  --color-bg: #F0FAF0;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #145214 0%, #1E7A1E 60%, #C9A84C 100%);
+  --banner-bg: #145214;
+  --banner-text: #C9A84C;
+}
+
+/* ============================================================
+   DIWALI THEME — late Oct (saffron + deep purple + gold)
+   ============================================================ */
+[data-season="diwali"] {
+  --color-primary: #8B1A6B;
+  --color-accent: #FF8C00;
+  --color-bg: #FFF5E8;
+  --color-text: #1A1A1A;
+  --hero-bg: linear-gradient(135deg, #3D0033 0%, #8B1A6B 45%, #FF8C00 100%);
+  --banner-bg: #8B1A6B;
+  --banner-text: #FFD700;
+}
+
+/* ============================================================
    CHRISTMAS THEME — Dec 1–25
    ============================================================ */
 [data-season="christmas"] {
@@ -368,3 +407,56 @@
     transform: none !important;
   }
 }
+
+/* ============================================================
+   HERO — Cinematic diagonal checkerboard dissolve overlay
+   The dark layer sits on the LEFT/TOP (text area).
+   The image/gradient shows through on the RIGHT/BOTTOM.
+   A checkerboard pattern dissolves the boundary cinematically.
+   ============================================================ */
+
+/* Layer 1 — solid diagonal gradient (main readability layer) */
+.hero-diagonal-base {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    128deg,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.65) 38%,
+    rgba(0, 0, 0, 0.22) 62%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+}
+
+/* Layer 2 — checkerboard dissolve at the transition boundary */
+.hero-checker-dissolve {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.55);
+  /* Checkerboard pattern intersected with a narrow diagonal band */
+  -webkit-mask-image:
+    repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 0 0 / 22px 22px,
+    linear-gradient(128deg, transparent 32%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 60%, transparent 78%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 0 0 / 22px 22px,
+    linear-gradient(128deg, transparent 32%, rgba(0,0,0,0.9) 48%, rgba(0,0,0,0.9) 60%, transparent 78%);
+  mask-composite: intersect;
+}
+
+/* Cinematic letterbox bars (top & bottom black bars like a film) */
+.hero-letterbox::before,
+.hero-letterbox::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-letterbox::before { top: 0; }
+.hero-letterbox::after  { bottom: 0; }

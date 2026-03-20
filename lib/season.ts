@@ -3,8 +3,11 @@ export type Season =
   | "newyear"
   | "valentine"
   | "ramadan"
+  | "eid_fitr"
   | "easter"
+  | "eid_adha"
   | "summer"
+  | "diwali"
   | "halloween"
   | "thanksgiving"
   | "christmas";
@@ -43,6 +46,14 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
     particleShape: "crescent",
     bannerMessage: "🌙 Ramadan Kareem — Special check-up packages this blessed month.",
   },
+  eid_fitr: {
+    season: "eid_fitr",
+    label: "Eid ul Fitr",
+    emoji: "🌙",
+    particleColor: "#FFD700",
+    particleShape: "crescent",
+    bannerMessage: "🌙 Eid Mubarak! Celebrate with a bright, healthy smile. Special offers inside!",
+  },
   easter: {
     season: "easter",
     label: "Easter",
@@ -51,6 +62,14 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
     particleShape: "circle",
     bannerMessage: "🌸 Easter Offer — Fresh smile for a fresh season!",
   },
+  eid_adha: {
+    season: "eid_adha",
+    label: "Eid ul Adha",
+    emoji: "🐑",
+    particleColor: "#C9A84C",
+    particleShape: "crescent",
+    bannerMessage: "🐑 Eid ul Adha Mubarak! Celebrate with family — and a healthy smile.",
+  },
   summer: {
     season: "summer",
     label: "Summer",
@@ -58,6 +77,14 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
     particleColor: "#FFB347",
     particleShape: "circle",
     bannerMessage: "☀️ Summer Smile Season — Book your whitening today!",
+  },
+  diwali: {
+    season: "diwali",
+    label: "Diwali",
+    emoji: "🪔",
+    particleColor: "#FF8C00",
+    particleShape: "star",
+    bannerMessage: "🪔 Happy Diwali! Light up your smile this festive season.",
   },
   halloween: {
     season: "halloween",
@@ -94,44 +121,61 @@ export const SEASON_THEMES: Record<Season, SeasonTheme> = {
 };
 
 /**
- * Ramadan shifts ~11 days earlier each year.
- * Approximate Gregorian windows (update annually):
- * 2026: Feb 18 – Mar 19
- * 2027: Feb 07 – Mar 08
- * 2028: Jan 27 – Feb 25
- * For the prototype we detect using configurable window from clinicConfig.
- * Fallback: roughly late-Feb to mid-Mar.
+ * Ramadan + Eid shift ~11 days earlier each year.
+ * Update windows annually in clinicConfig.
+ *
+ * 2026 approx dates:
+ *   Ramadan:   Feb 18 – Mar 19
+ *   Eid Fitr:  Mar 20 – Mar 22
+ *   Eid Adha:  May 27 – May 30
+ *   Diwali:    Oct 20 – Oct 22
  */
-export function isRamadan(
-  now: Date = new Date(),
-  windowOverride?: { startMonth: number; startDay: number; endMonth: number; endDay: number }
-): boolean {
+export interface SeasonWindow {
+  startMonth: number;
+  startDay: number;
+  endMonth: number;
+  endDay: number;
+}
+
+function inWindow(now: Date, w: SeasonWindow): boolean {
   const m = now.getMonth() + 1;
   const d = now.getDate();
-  const win = windowOverride ?? { startMonth: 2, startDay: 18, endMonth: 3, endDay: 19 };
-  const afterStart =
-    m > win.startMonth || (m === win.startMonth && d >= win.startDay);
-  const beforeEnd =
-    m < win.endMonth || (m === win.endMonth && d <= win.endDay);
-  // handle same-month window
-  if (win.startMonth === win.endMonth) return afterStart && beforeEnd;
+  const afterStart = m > w.startMonth || (m === w.startMonth && d >= w.startDay);
+  const beforeEnd  = m < w.endMonth  || (m === w.endMonth  && d <= w.endDay);
+  if (w.startMonth === w.endMonth) return m === w.startMonth && d >= w.startDay && d <= w.endDay;
   return afterStart && beforeEnd;
 }
 
-export function detectSeason(
-  ramadanWindow?: { startMonth: number; startDay: number; endMonth: number; endDay: number }
-): Season {
+export function detectSeason(windows?: {
+  ramadan?:  SeasonWindow;
+  eidFitr?:  SeasonWindow;
+  eidAdha?:  SeasonWindow;
+  diwali?:   SeasonWindow;
+}): Season {
   const now = new Date();
   const m = now.getMonth() + 1;
   const d = now.getDate();
 
   if ((m === 12 && d >= 26) || (m === 1 && d <= 7)) return "newyear";
   if (m === 2 && d <= 14) return "valentine";
-  if (isRamadan(now, ramadanWindow)) return "ramadan";
+
+  // Eid ul Fitr — check BEFORE ramadan so the celebration day wins
+  if (windows?.eidFitr && inWindow(now, windows.eidFitr)) return "eid_fitr";
+  if (windows?.ramadan  && inWindow(now, windows.ramadan))  return "ramadan";
+
   if ((m === 3 && d >= 20) || (m === 4 && d <= 15)) return "easter";
+
+  // Eid ul Adha
+  if (windows?.eidAdha && inWindow(now, windows.eidAdha)) return "eid_adha";
+
   if (m >= 6 && m <= 8) return "summer";
+
+  // Diwali (late Oct / early Nov, before halloween check)
+  if (windows?.diwali && inWindow(now, windows.diwali)) return "diwali";
+
   if (m === 10 && d >= 15) return "halloween";
   if (m === 11) return "thanksgiving";
   if (m === 12 && d <= 25) return "christmas";
+
   return "default";
 }
